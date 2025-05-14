@@ -2,25 +2,18 @@ pipeline {
     agent any
 
     environment {
-        NODE_HOME = tool name: 'nodejs', type: 'NodeJS'
-        PATH = "${NODE_HOME}/bin:${env.PATH}"
+        NODE_HOME = '/usr/local/bin'
+        PATH = "${NODE_HOME}:${env.PATH}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo 'Cloning repository...'
-                checkout scm
+                git branch: 'main', url: 'https://github.com/jlmejia21/angular-jenkins.git'
             }
         }
 
-        stage('Install Angular CLI') {
-            steps {
-                sh 'npm install -g @angular/cli'
-            }
-        }
-
-        stage('Install Dependencies') {
+        stage('Install') {
             steps {
                 sh 'npm install'
             }
@@ -28,29 +21,27 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'ng build'
+                sh 'npm run build'
             }
         }
 
         stage('Test') {
             steps {
-                // Si no necesitas tests puedes comentar esta parte
-                sh 'ng test --watch=false --browsers=ChromeHeadless || echo "Tests failed, but continuing..."'
+                sh 'npm run test --watch=false --browsers=ChromeHeadless'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying to production...'
-                // Ejemplo: Copiar archivos al servidor remoto
-                // sh 'scp -r dist/ubuntu@your.server:/var/www/html/angular-app'
+                echo 'Desplegando a servidor local...'
+                // Ejemplo: Copiar archivos a /var/www
+                // sh 'cp -r dist/angular-ci-demo/* /var/www/html/'
             }
         }
     }
 
     post {
         always {
-            echo 'Cleaning up workspace...'
             cleanWs()
         }
     }
