@@ -13,6 +13,24 @@ pipeline {
             }
         }
 
+        stage('Install Node.js and npm') {
+            steps {
+                script {
+                    // Install Node.js and npm if not installed
+                    sh '''
+                        if ! command -v npm &> /dev/null
+                        then
+                            echo "npm could not be found, installing Node.js and npm"
+                            curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+                            sudo apt-get install -y nodejs
+                        else
+                            echo "npm is already installed"
+                        fi
+                    '''
+                }
+            }
+        }
+
         stage('Install') {
             steps {
                 sh 'npm install'
